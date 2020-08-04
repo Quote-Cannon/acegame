@@ -22,7 +22,7 @@ namespace ace_game
         public virtual void Update(GameTime gameTime)
         {
             vspeed = Math.Clamp(vspeed, -100f, 30f);
-            hspeed = Math.Clamp(hspeed, -10f, 10f);
+            hspeed = Math.Clamp(hspeed, -15f, 15f);
             CheckMovement(vspeed, "V");
             CheckMovement(hspeed, "H");
 

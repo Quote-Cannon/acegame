@@ -22,12 +22,12 @@ namespace ace_game
         {
             KeyboardState kstate = Keyboard.GetState();
             base.Update(gameTime);
-            vspeed += 1f;
+            vspeed += 1.4f;
             if (kstate.IsKeyDown(Keys.W) && jumpDelay < 10)
             {
                 if (pos.Y == Game1.screenHeight)
                 {
-                    vspeed = -30f;
+                    vspeed = -35f;
                     jumpDelay = 10;
                 }
                 else
@@ -36,23 +36,17 @@ namespace ace_game
             else
             {
                 jumpDelay = 10;
-                if (vspeed < 0f)
-                    vspeed += 6f;
             }
             if (kstate.IsKeyUp(Keys.W))
                 jumpDelay = 0;
-            if (kstate.IsKeyDown(Keys.S))
-                vspeed += 4f;
-            else if (vspeed < 0f)
-                vspeed -= 6f;
             if (kstate.IsKeyDown(Keys.A))
-                hspeed -= 4f;
+                hspeed -= 0.6f;
             else if (hspeed < 0f)
-                hspeed += 6f;
+                hspeed = Math.Clamp(hspeed + 0.9f, -10f, 0f);
             if (kstate.IsKeyDown(Keys.D))
-                hspeed += 4f;
+                hspeed += 0.6f;
             else if (hspeed > 0f)
-                hspeed -= 5f;
+                hspeed = Math.Clamp(hspeed - 0.9f, 0f, 10f);
         }
     }
 }
