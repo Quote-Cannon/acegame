@@ -30,28 +30,34 @@ namespace ace_game
 
         public void CheckMovement(float displacement, string direction)
         {
-            Tile tilecheck;
+            Func<int, int, int> gridClamp = (input, dimension) => Math.Clamp(input, 0, Game1.currentMap.GetLength(dimension)-1);
+            Func<int, Tile[]> tilecheck;
             switch (direction)
             {
                 //TODO: replace conditionals and tilechecks with lambdas to cut down on code duplication
                 case "V":
                     //checks if there's a block below the player
-                    tilecheck = Game1.currentMap[(hitbox.X + hitbox.Width / 2) / 32, Math.Clamp((int)((hitbox.Bottom + displacement) / 32), 0, Game1.currentMap.GetLength(1)-1)];
-                    if (tilecheck.Collider("DOWN"))
+                    tilecheck = side => new Tile[] {
+                        Game1.currentMap[hitbox.Left / 32, gridClamp((int)((side + displacement) / 32), 1)],
+                        Game1.currentMap[(hitbox.X + hitbox.Width / 2) / 32, gridClamp((int)((side + displacement) / 32), 1)],
+                        Game1.currentMap[hitbox.Right / 32, gridClamp((int)((side + displacement) / 32), 1)]
+                    };
+                    foreach (Tile t in tilecheck(hitbox.Bottom))
+                    if (t.Collider("DOWN"))
                     {
                         //moves the entity as far as possible
-                        hitbox.Y = tilecheck.frame.Top - spriteArr[drawIndex].Height;
+                        hitbox.Y = t.frame.Top - spriteArr[drawIndex].Height;
                         vspeed = 0f;
-                        break;
+                        return;
                     }
                     //checks if there's a block above the player
-                    tilecheck = Game1.currentMap[(hitbox.X + hitbox.Width / 2) / 32, Math.Clamp((int)((hitbox.Top + displacement) / 32), 0, Game1.currentMap.GetLength(1)-1)];
-                    if (tilecheck.Collider("UP"))
+                    foreach (Tile t in tilecheck(hitbox.Top))
+                        if (t.Collider("UP"))
                     {
                         //moves the entity as far as possible
-                        hitbox.Y = tilecheck.frame.Bottom + 1;
+                        hitbox.Y = t.frame.Bottom + 1;
                         vspeed = 0f;
-                        break;
+                        return;
                     }
                     //checks if the entity is at the top of the screen
                     if (hitbox.Top + displacement < 0f)
@@ -59,7 +65,7 @@ namespace ace_game
                         //moves the entity as far as possible
                         hitbox.Y = 0;
                         vspeed = 0f;
-                        break;
+                        return;
                     }
                     //checks if the entity is at the bottom of the screen
                     if (hitbox.Bottom + displacement > Game1.screenHeight)
@@ -67,29 +73,34 @@ namespace ace_game
                         //moves the entity as far as possible
                         hitbox.Y = Game1.screenHeight-spriteArr[drawIndex].Height;
                         vspeed = 0f;
-                        break;
+                        return;
                     }
                         //moves the entity
                         hitbox.Y = (int)(hitbox.Y + displacement);
                     break;
                 case "H":
+                    tilecheck = side => new Tile[] {
+                        Game1.currentMap[gridClamp((int)((hitbox.Right + displacement) / 32), 0), hitbox.Top / 32],
+                        Game1.currentMap[gridClamp((int)((hitbox.Right + displacement) / 32), 0), (hitbox.Y + hitbox.Height / 2) / 32],
+                        Game1.currentMap[gridClamp((int)((hitbox.Right + displacement) / 32), 0), hitbox.Bottom / 32]
+                    };
                     //check if there's a block right of the player
-                    tilecheck = Game1.currentMap[Math.Clamp((int)((hitbox.Right + displacement) / 32), 0, Game1.currentMap.GetLength(0) - 1), (hitbox.Y + hitbox.Height / 2) / 32];
-                    if (tilecheck.Collider("RIGHT"))
+                    foreach (Tile t in tilecheck(hitbox.Right))
+                        if (t.Collider("RIGHT"))
                     {
                         //moves the entity as far as possible
-                        hitbox.X = tilecheck.frame.Left - 1 - spriteArr[drawIndex].Width;
+                        hitbox.X = t.frame.Left - 1 - spriteArr[drawIndex].Width;
                         hspeed = 0;
-                        break;
+                        return;
                     }
                     //checks if there's a block left of the player
-                    tilecheck = Game1.currentMap[Math.Clamp((int)((hitbox.Left + displacement) / 32), 0, Game1.currentMap.GetLength(0) - 1), (hitbox.Y + hitbox.Height / 2) / 32];
-                    if (tilecheck.Collider("LEFT"))
+                    foreach (Tile t in tilecheck(hitbox.Left))
+                    if (t.Collider("LEFT"))
                     {
                         //moves the entity as far as possible
-                        hitbox.X = tilecheck.frame.Right + 1;
+                        hitbox.X = t.frame.Right + 1;
                         hspeed = 0f;
-                        break;
+                        return;
                     }
                     //checks if the entity is at the right of the screen
                     if (hitbox.Right + displacement > Game1.screenWidth)
@@ -97,7 +108,7 @@ namespace ace_game
                         //moves the entity as far as possible
                         hitbox.X = Game1.screenWidth - spriteArr[drawIndex].Width;
                         hspeed = 0f;
-                        break;
+                        return;
                     }
                     //checks if the entity is at the left of the screen
                     if (hitbox.Left + displacement < 0f)
@@ -105,7 +116,7 @@ namespace ace_game
                         //moves the entity as far as possible
                         hitbox.X = 0;
                         hspeed = 0f;
-                        break;
+                        return;
                     }
                     //moves the entity
                     hitbox.X = (int)(hitbox.X + displacement);
