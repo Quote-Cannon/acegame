@@ -85,6 +85,13 @@
 /processorParam:TextureFormat=Color
 /build:bullet_placeholder.png
 
+#begin defaultFont.spritefont
+/importer:FontDescriptionImporter
+/processor:LocalizedFontProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:defaultFont.spritefont
+
 #begin enemy_placeholder.png
 /importer:TextureImporter
 /processor:TextureProcessor
