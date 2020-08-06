@@ -25,15 +25,25 @@ namespace ace_game
             //if any of the jump buttons are pressed and a jump has been buffered <10 frames ago
             if ((kstate.IsKeyDown(Keys.W) || kstate.IsKeyDown(Keys.Up) || gstate.IsButtonDown(Buttons.A)) && jumpDelay < 10)
             {
+                bool jump = false;
                 //if the player is on the ground and on a suitable platform (technically, when the bottom of the player and the top of the platform intersect)
-                Tile collidable = Game1.currentMap[(hitbox.X + hitbox.Width / 2) / 32, Math.Clamp(hitbox.Bottom / 32, 0, Game1.currentMap.GetLength(1) - 1)];
-                if (hitbox.Bottom > Game1.screenHeight - 2 || (collidable.Collider("DOWN") && collidable.frame.Top - hitbox.Bottom < 1))
+                Tile[] collidable = new Tile[] {
+                    Game1.currentMap[(hitbox.X + hitbox.Width / 2) / 32, Math.Clamp(hitbox.Bottom / 32, 0, Game1.currentMap.GetLength(1) - 1)],
+                    Game1.currentMap[Math.Clamp((hitbox.X + hitbox.Width / 2) / 32+1, 0, Game1.currentMap.GetLength(0)), Math.Clamp(hitbox.Bottom / 32, 0, Game1.currentMap.GetLength(1) - 1)],
+                    Game1.currentMap[Math.Clamp((hitbox.X + hitbox.Width / 2) / 32-1, 0, Game1.currentMap.GetLength(0)), Math.Clamp(hitbox.Bottom / 32, 0, Game1.currentMap.GetLength(1) - 1)]
+                };
+                foreach (Tile t in collidable)
                 {
-                    //yeet that sucker skyward
-                    vspeed = -26f;
-                    jumpDelay = 10;
+                    if (hitbox.Bottom > Game1.screenHeight - 2 || (t.Collider("DOWN") && t.frame.Top - hitbox.Bottom < 1))
+                    {
+                        //yeet that sucker skyward
+                        vspeed = -27f;
+                        jumpDelay = 10;
+                        jump = true;
+                        break;
+                    }
                 }
-                else
+                if (!jump)
                     //if the player is in the air, the buffer timer counts up
                     jumpDelay++;
             }
