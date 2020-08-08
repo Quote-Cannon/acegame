@@ -16,7 +16,7 @@ namespace ace_game
 
         public virtual void Draw()
         {
-            Game1._spriteBatch.Draw(spriteArr[drawIndex], new Vector2(hitbox.Left, hitbox.Top), null, Color.White, 0f, Vector2.Zero, Vector2.One, SpriteEffects.None, 0f);
+            Main._spriteBatch.Draw(spriteArr[drawIndex], new Vector2(hitbox.Left, hitbox.Top), null, Color.White, 0f, Vector2.Zero, Vector2.One, SpriteEffects.None, 0f);
         }
 
         public virtual void Update(GameTime gameTime, KeyboardState kstate, GamePadState gstate)
@@ -39,7 +39,7 @@ namespace ace_game
                 case "V":
                     temp = hitbox;
                     temp.Y += (int)displacement;
-                    foreach (Tile t in Game1.currentMap)
+                    foreach (Tile t in Main.currentMap)
                         if (t.frame.Intersects(temp))
                             if (displacement < 0 && t.Collider("UP"))
                             {
@@ -64,10 +64,10 @@ namespace ace_game
                         break;
                     }
                     //checks if the entity is at the bottom of the screen
-                    if (hitbox.Bottom + displacement > Game1.screenHeight)
+                    if (hitbox.Bottom + displacement > Main.screenHeight)
                     {
                         //moves the entity as far as possible
-                        hitbox.Y = Game1.screenHeight - spriteArr[drawIndex].Height;
+                        hitbox.Y = Main.screenHeight - spriteArr[drawIndex].Height;
                         vspeed = 0f;
                         break;
                     }
@@ -78,7 +78,7 @@ namespace ace_game
                 case "H":
                     temp = hitbox;
                     temp.X += (int)displacement;
-                    foreach (Tile t in Game1.currentMap)
+                    foreach (Tile t in Main.currentMap)
                         if (t.frame.Intersects(temp))
                             if (displacement < 0 && t.Collider("LEFT"))
                             {
@@ -95,10 +95,10 @@ namespace ace_game
                                 collided = true;
                             }
                     //checks if the entity is at the right of the screen
-                    if (hitbox.Right + displacement > Game1.screenWidth)
+                    if (hitbox.Right + displacement > Main.screenWidth)
                     {
                         //moves the entity as far as possible
-                        hitbox.X = Game1.screenWidth - spriteArr[drawIndex].Width;
+                        hitbox.X = Main.screenWidth - spriteArr[drawIndex].Width;
                         hspeed = 0f;
                         break;
                     }

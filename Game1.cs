@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace ace_game
 {
-    public class Game1 : Game
+    public class Main : Game
     {
         //TODO: use get/sets everywhere
         Texture2D aceDash_spr, aceIdle_spr, aceJump_spr, aceSlide_spr, block_spr, bullet_spr, enemy_spr, sword_spr;
@@ -23,7 +23,7 @@ namespace ace_game
         public static int screenWidth;
         public static int screenHeight;
 
-        public Game1()
+        public Main()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
