@@ -9,7 +9,7 @@ namespace ace_game
     class Entity
     {
         public Rectangle hitbox;
-        public float hspeed, vspeed;
+        public float hspeed, vspeed, hmax = 15;
         protected float gravity;
         protected Texture2D[] spriteArr;
         protected int drawIndex = 0;
@@ -22,7 +22,7 @@ namespace ace_game
         public virtual void Update(GameTime gameTime, KeyboardState kstate, GamePadState gstate)
         {
             vspeed = Math.Clamp(vspeed, -100f, 30f);
-            hspeed = Math.Clamp(hspeed, -15f, 15f);
+            hspeed = Math.Clamp(hspeed, -hmax, hmax);
             CheckMovement(hspeed, "H");
             CheckMovement(vspeed, "V");
             vspeed += gravity;

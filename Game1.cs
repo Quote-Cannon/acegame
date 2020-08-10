@@ -12,7 +12,7 @@ namespace ace_game
     {
         //TODO: use get/sets everywhere
         Texture2D aceDash_spr, aceIdle_spr, aceJump_spr, aceSlide_spr, block_spr, bullet_spr, enemy_spr, sword_spr;
-        SpriteFont defaultFont;
+        public static SpriteFont defaultFont;
         Player player;
         Dictionary<char, Texture2D> tileDict = new Dictionary<char, Texture2D>();
         private FrameCounter _frameCounter = new FrameCounter();

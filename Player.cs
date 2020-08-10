@@ -9,7 +9,7 @@ namespace ace_game
     class Player : Entity
     {
         int jumpDelay;
-        float crouched;
+        bool crouched;
         public Player(Texture2D[] sprites)
         {
             hspeed = 0f;
@@ -18,19 +18,11 @@ namespace ace_game
             hitbox = new Rectangle(100, 100, spriteArr[0].Width, spriteArr[0].Height);
             jumpDelay = 0;
             gravity = 1.4f;
-            crouched = 0;
+            crouched = false;
         }
 
         public override void Update(GameTime gameTime, KeyboardState kstate, GamePadState gstate)
         {
-            if (crouched > 0f)
-                crouched -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-            else if (crouched < 0f)
-            {
-                crouched = 0f;
-                hitbox = new Rectangle(hitbox.X, hitbox.Y - hitbox.Height, spriteArr[0].Width, spriteArr[0].Height);
-            }
-
             base.Update(gameTime, kstate, gstate);
             //if any of the jump buttons are pressed and a jump has been buffered <10 frames ago
             if ((kstate.IsKeyDown(Keys.W) || kstate.IsKeyDown(Keys.Up) || gstate.IsButtonDown(Buttons.A)) && jumpDelay < 10)
@@ -56,10 +48,17 @@ namespace ace_game
                 hspeed += 0.6f;
             else if (hspeed > 0f)
                 hspeed = Math.Clamp(hspeed - 0.9f, 0f, 10f);
-            if ((kstate.IsKeyDown(Keys.S) || kstate.IsKeyDown(Keys.Down) || gstate.IsButtonDown(Buttons.RightShoulder)) && crouched <= 0 && checkGrounded())
+            if (!crouched && (kstate.IsKeyDown(Keys.S) || kstate.IsKeyDown(Keys.Down) || gstate.IsButtonDown(Buttons.DPadDown) || gstate.ThumbSticks.Left.Y < -0.5f) && checkGrounded())
             {
-                crouched = 0.5f;
+                crouched = true;
+                hmax /= 4f;
                 hitbox = new Rectangle(hitbox.X, hitbox.Y + hitbox.Height / 2, spriteArr[3].Width, spriteArr[3].Height);
+            }
+            if (crouched && kstate.IsKeyUp(Keys.S) && kstate.IsKeyUp(Keys.Down) && gstate.IsButtonUp(Buttons.DPadDown) && gstate.ThumbSticks.Left.Y > -0.5f)
+            {
+                crouched = false;
+                hmax *= 4f;
+                hitbox = new Rectangle(hitbox.X, hitbox.Y - hitbox.Height, spriteArr[0].Width, spriteArr[0].Height);
             }
         }
 
@@ -79,12 +78,12 @@ namespace ace_game
 
         private int findDrawIndex()
         {
-            if (crouched > 0f)
+            if (crouched)
                 return 3;
-            //if (Math.Abs(vspeed) > 10f)
-                //return 2;
-            //if (Math.Abs(hspeed) > 10f)
-                //return 1;
+            /*if (Math.Abs(vspeed) > 10f)
+                return 2;
+            if (Math.Abs(hspeed) > 10f)
+                return 1;*/
             return 0;
         }
 
