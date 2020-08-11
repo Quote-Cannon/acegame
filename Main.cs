@@ -15,23 +15,20 @@ namespace ace_game
         public static SpriteFont defaultFont;
         Player player;
         Dictionary<char, Texture2D> tileDict = new Dictionary<char, Texture2D>();
-        private FrameCounter _frameCounter = new FrameCounter();
+        public FrameCounter _frameCounter = new FrameCounter();
         public static Tile[,] currentMap;
 
         private GraphicsDeviceManager _graphics;
         public static SpriteBatch _spriteBatch;
-        public static int screenWidth;
-        public static int screenHeight;
+        public static Point mapBounds;
 
         public Main()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            screenWidth = 1920;
-            screenHeight = 1080;
-            _graphics.PreferredBackBufferWidth = screenWidth;
-            _graphics.PreferredBackBufferHeight = screenHeight;
+            _graphics.PreferredBackBufferWidth = 1920;
+            _graphics.PreferredBackBufferHeight = 1080;
         }
 
         protected override void LoadContent()
@@ -54,8 +51,9 @@ namespace ace_game
         {
             // TODO: Add your initialization logic here
             base.Initialize();
-            player = new Player(new Texture2D[] { aceIdle_spr, aceDash_spr, aceJump_spr, aceSlide_spr });
-            currentMap = loadMap(@"./layouts/testmap.txt");
+            player = new Player(new Texture2D[] { aceIdle_spr, aceDash_spr, aceJump_spr, aceSlide_spr }, new Point(100, 100), 1.4f, new Point(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight));
+            currentMap = loadMap(@"./layouts/testmap_large.txt");
+            mapBounds = new Point(currentMap.GetLength(0) * 32, currentMap.GetLength(1) * 32);
         }
 
         protected override void Update(GameTime gameTime)
@@ -89,10 +87,10 @@ namespace ace_game
 
 
             // TODO: Add your drawing code here
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, player.camera.transMatrix);
             drawMap(currentMap);
             player.Draw();
-            _spriteBatch.DrawString(defaultFont, fps, new Vector2(1, 1), Color.Black);
+            player.camera.Draw(fps, player.hitbox.Location);
             _spriteBatch.End();
 
 
@@ -134,10 +132,6 @@ namespace ace_game
 
     public class FrameCounter
     {
-        public FrameCounter()
-        {
-        }
-
         public long TotalFrames { get; private set; }
         public float TotalSeconds { get; private set; }
         public float AverageFramesPerSecond { get; private set; }
@@ -162,7 +156,6 @@ namespace ace_game
             {
                 AverageFramesPerSecond = CurrentFramesPerSecond;
             }
-
             TotalFrames++;
             TotalSeconds += deltaTime;
             return true;

@@ -10,15 +10,12 @@ namespace ace_game
     {
         int jumpDelay;
         bool crouched;
-        public Player(Texture2D[] sprites)
+        public Camera camera;
+        public Player(Texture2D[] sprites, Point pos, float grav, Point screen) : base(sprites, pos, grav)
         {
-            hspeed = 0f;
-            vspeed = 0f;
-            spriteArr = sprites;
-            hitbox = new Rectangle(100, 100, spriteArr[0].Width, spriteArr[0].Height);
             jumpDelay = 0;
-            gravity = 1.4f;
             crouched = false;
+            camera = new Camera(pos, screen);
         }
 
         public override void Update(GameTime gameTime, KeyboardState kstate, GamePadState gstate)
@@ -60,6 +57,18 @@ namespace ace_game
                 hmax *= 4f;
                 hitbox = new Rectangle(hitbox.X, hitbox.Y - hitbox.Height, spriteArr[0].Width, spriteArr[0].Height);
             }
+            //TODO: what the fuck is this
+            if (hitbox.X + camera.screen.X > camera.screen.Width / 3*2)
+            camera.screen.X = Math.Clamp(camera.screen.Width / 3*2 - hitbox.X, -(Main.mapBounds.X - camera.screen.Width), 0);
+            if (camera.screen.X + hitbox.X < camera.screen.Width / 3)
+                camera.screen.X = Math.Clamp(camera.screen.Width / 3 - hitbox.X, -(Main.mapBounds.X - camera.screen.Width), 0);
+            if (hitbox.Y + camera.screen.Y > camera.screen.Height / 3 * 2)
+                camera.screen.Y = Math.Clamp(camera.screen.Height / 3 * 2 - hitbox.Y, -(Main.mapBounds.Y - camera.screen.Height), 0);
+            if (camera.screen.Y + hitbox.Y < camera.screen.Height / 3)
+                camera.screen.Y = Math.Clamp(camera.screen.Height / 3 - hitbox.Y, -(Main.mapBounds.Y - camera.screen.Height), 0);
+
+
+            camera.Update();
         }
 
         private bool checkGrounded()
@@ -71,7 +80,7 @@ namespace ace_game
                     Main.currentMap[Math.Clamp((hitbox.X + hitbox.Width-1) / 32, 0, temp.GetLength(0)), Math.Clamp(hitbox.Bottom / 32, 0, temp.GetLength(1) - 1)],
                     Main.currentMap[Math.Clamp(hitbox.X / 32, 0, temp.GetLength(0)), Math.Clamp(hitbox.Bottom / 32, 0, temp.GetLength(1) - 1)]
                 })
-                if (hitbox.Bottom > Main.screenHeight - 2 || (t.Collider("DOWN") && t.frame.Top - hitbox.Bottom < 1))
+                if (hitbox.Bottom > Main.mapBounds.Y - 2 || (t.Collider("DOWN") && t.frame.Top - hitbox.Bottom < 1))
                     return true;
             return false;
         }

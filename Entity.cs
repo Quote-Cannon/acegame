@@ -14,6 +14,15 @@ namespace ace_game
         protected Texture2D[] spriteArr;
         protected int drawIndex = 0;
 
+        public Entity(Texture2D[] sprites, Point pos, float grav)
+        {
+            hspeed = 0f;
+            vspeed = 0f;
+            spriteArr = sprites;
+            hitbox = new Rectangle(pos, new Point(spriteArr[0].Width, spriteArr[0].Height));
+            gravity = grav;
+        }
+
         public virtual void Draw()
         {
             Main._spriteBatch.Draw(spriteArr[drawIndex], new Vector2(hitbox.Left, hitbox.Top), null, Color.White, 0f, Vector2.Zero, Vector2.One, SpriteEffects.None, 0f);
@@ -55,19 +64,19 @@ namespace ace_game
                                 vspeed = 0f;
                                 collided = true;
                             }
-                    //checks if the entity is at the top of the screen
-                    if (hitbox.Top + displacement < 0f)
+                    //checks if the entity is at the top of the level
+                    if (hitbox.Top + displacement < -250f)
                     {
                         //moves the entity as far as possible
-                        hitbox.Y = 0;
+                        hitbox.Y = -150;
                         vspeed = 0f;
                         break;
                     }
-                    //checks if the entity is at the bottom of the screen
-                    if (hitbox.Bottom + displacement > Main.screenHeight)
+                    //checks if the entity is at the bottom of the level
+                    if (hitbox.Bottom + displacement > Main.mapBounds.Y)
                     {
                         //moves the entity as far as possible
-                        hitbox.Y = Main.screenHeight - spriteArr[drawIndex].Height;
+                        hitbox.Y = Main.mapBounds.Y - spriteArr[drawIndex].Height;
                         vspeed = 0f;
                         break;
                     }
@@ -94,19 +103,19 @@ namespace ace_game
                                 hspeed = 0;
                                 collided = true;
                             }
-                    //checks if the entity is at the right of the screen
-                    if (hitbox.Right + displacement > Main.screenWidth)
-                    {
-                        //moves the entity as far as possible
-                        hitbox.X = Main.screenWidth - spriteArr[drawIndex].Width;
-                        hspeed = 0f;
-                        break;
-                    }
-                    //checks if the entity is at the left of the screen
+                    //checks if the entity is at the left of the level
                     if (hitbox.Left + displacement < 0f)
                     {
                         //moves the entity as far as possible
                         hitbox.X = 0;
+                        hspeed = 0f;
+                        break;
+                    }
+                    //checks if the entity is at the right of the level
+                    if (hitbox.Right + displacement > Main.mapBounds.X)
+                    {
+                        //moves the entity as far as possible
+                        hitbox.X = Main.mapBounds.X - spriteArr[drawIndex].Width;
                         hspeed = 0f;
                         break;
                     }
