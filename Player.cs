@@ -51,7 +51,7 @@ namespace ace_game
                 hmax /= 4f;
                 hitbox = new Rectangle(hitbox.X, hitbox.Y + hitbox.Height / 2, spriteArr[3].Width, spriteArr[3].Height);
             }
-            if (crouched && kstate.IsKeyUp(Keys.S) && kstate.IsKeyUp(Keys.Down) && gstate.IsButtonUp(Buttons.DPadDown) && gstate.ThumbSticks.Left.Y > -0.5f)
+            if (crouched && kstate.IsKeyUp(Keys.S) && kstate.IsKeyUp(Keys.Down) && gstate.IsButtonUp(Buttons.DPadDown) && gstate.ThumbSticks.Left.Y > -0.5f && !checkCrawling())
             {
                 crouched = false;
                 hmax *= 4f;
@@ -76,11 +76,25 @@ namespace ace_game
             Tile[,] temp = Main.currentMap;
             //if the player is on the ground and on a suitable platform (technically, when the bottom of the player and the top of the platform intersect)
             foreach (Tile t in new Tile[] {
-                    Main.currentMap[(hitbox.X + hitbox.Width / 2) / 32, Math.Clamp(hitbox.Bottom / 32, 0, temp.GetLength(1) - 1)],
-                    Main.currentMap[Math.Clamp((hitbox.X + hitbox.Width-1) / 32, 0, temp.GetLength(0)), Math.Clamp(hitbox.Bottom / 32, 0, temp.GetLength(1) - 1)],
-                    Main.currentMap[Math.Clamp(hitbox.X / 32, 0, temp.GetLength(0)), Math.Clamp(hitbox.Bottom / 32, 0, temp.GetLength(1) - 1)]
+                    temp[(hitbox.X + hitbox.Width / 2) / 32, Math.Clamp(hitbox.Bottom / 32, 0, temp.GetLength(1) - 1)],
+                    temp[Math.Clamp((hitbox.X + hitbox.Width-1) / 32, 0, temp.GetLength(0)), Math.Clamp(hitbox.Bottom / 32, 0, temp.GetLength(1) - 1)],
+                    temp[Math.Clamp(hitbox.X / 32, 0, temp.GetLength(0)), Math.Clamp(hitbox.Bottom / 32, 0, temp.GetLength(1) - 1)]
                 })
-                if (hitbox.Bottom > Main.mapBounds.Y - 2 || (t.Collider("DOWN") && t.frame.Top - hitbox.Bottom < 1))
+                if (t.Collider("DOWN") && t.frame.Top - hitbox.Bottom < 1)
+                    return true;
+            return false;
+        }
+
+        private bool checkCrawling()
+        {
+            Tile[,] temp = Main.currentMap;
+            //if the player is on the ground and on a suitable platform (technically, when the bottom of the player and the top of the platform intersect)
+            foreach (Tile t in new Tile[] {
+                    temp[(hitbox.X + hitbox.Width / 2) / 32, Math.Clamp(hitbox.Top / 32-1, 0, temp.GetLength(1) - 1)],
+                    temp[Math.Clamp((hitbox.X + hitbox.Width-1) / 32, 0, temp.GetLength(0)), Math.Clamp(hitbox.Top / 32 -1, 0, temp.GetLength(1) - 1)],
+                    temp[Math.Clamp(hitbox.X / 32, 0, temp.GetLength(0)), Math.Clamp(hitbox.Top / 32-1, 0, temp.GetLength(1) - 1)]
+                })
+                if (t.Collider("UP") && hitbox.Top >= t.frame.Bottom)
                     return true;
             return false;
         }
