@@ -11,12 +11,14 @@ namespace ace_game
     public class Main : Game
     {
         //TODO: use get/sets everywhere
+        static public bool kill = false;
         Texture2D aceDash_spr, aceIdle_spr, aceJump_spr, aceSlide_spr, block_spr, bullet_spr, enemy_spr, sword_spr;
         public static SpriteFont defaultFont;
-        Player player;
+        public static Player player;
         Dictionary<char, Texture2D> tileDict = new Dictionary<char, Texture2D>();
         public FrameCounter _frameCounter = new FrameCounter();
         public static Tile[,] currentMap;
+        List<Enemy> enemies = new List<Enemy>();
 
         private GraphicsDeviceManager _graphics;
         public static SpriteBatch _spriteBatch;
@@ -60,7 +62,7 @@ namespace ace_game
         {
             GamePadState gstate = GamePad.GetState(PlayerIndex.One);
             KeyboardState kstate = Keyboard.GetState();
-            if (gstate.Buttons.Back == ButtonState.Pressed || kstate.IsKeyDown(Keys.Escape))
+            if (gstate.Buttons.Back == ButtonState.Pressed || kstate.IsKeyDown(Keys.Escape) || kill)
                 Exit();
             if (kstate.IsKeyDown(Keys.F4))
             {
@@ -69,7 +71,9 @@ namespace ace_game
             }
 
             // TODO: Add your update logic here
-            player.Update(gameTime, kstate, gstate);
+            player.Update(gameTime);
+            foreach (Enemy e in enemies)
+                e.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -89,8 +93,10 @@ namespace ace_game
             // TODO: Add your drawing code here
             _spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, player.camera.transMatrix);
             drawMap(currentMap);
+            foreach (Enemy e in enemies)
+                e.Draw();
             player.Draw();
-            player.camera.Draw(fps, player.hitbox.Location);
+            player.camera.Draw(fps, player.hitbox.Location, player.health);
             _spriteBatch.End();
 
 
@@ -111,6 +117,10 @@ namespace ace_game
                     {
                         case '*':
                             map[j, i] = new Block(j * 32, i * 32, block_spr);
+                            break;
+                        case 'e':
+                            map[j, i] = new Tile();
+                            enemies.Add(new Enemy(new Texture2D[] { enemy_spr }, new Point(j * 32, i * 32), 1.4f, 25, new int[] { 10 }));
                             break;
                         default:
                             map[j, i] = new Tile();

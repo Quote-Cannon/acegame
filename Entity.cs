@@ -6,21 +6,25 @@ using System.Collections.Generic;
 
 namespace ace_game
 {
-    class Entity
+    public class Entity
     {
         public Rectangle hitbox;
         public float hspeed, vspeed, hmax = 15;
         protected float gravity;
         protected Texture2D[] spriteArr;
         protected int drawIndex = 0;
+        public int health { get; protected set; }
+        protected float damageCooldown;
 
-        public Entity(Texture2D[] sprites, Point pos, float grav)
+        public Entity(Texture2D[] sprites, Point pos, float grav, int hp)
         {
             hspeed = 0f;
             vspeed = 0f;
             spriteArr = sprites;
             hitbox = new Rectangle(pos, new Point(spriteArr[0].Width, spriteArr[0].Height));
             gravity = grav;
+            health = hp;
+            damageCooldown = 0f;
         }
 
         public virtual void Draw()
@@ -28,13 +32,13 @@ namespace ace_game
             Main._spriteBatch.Draw(spriteArr[drawIndex], new Vector2(hitbox.Left, hitbox.Top), null, Color.White, 0f, Vector2.Zero, Vector2.One, SpriteEffects.None, 0f);
         }
 
-        public virtual void Update(GameTime gameTime, KeyboardState kstate, GamePadState gstate)
+        public virtual void Update(GameTime gameTime)
         {
-            vspeed = Math.Clamp(vspeed, -100f, 30f);
-            hspeed = Math.Clamp(hspeed, -hmax, hmax);
+            if (damageCooldown > 0f)
+                damageCooldown -= (float)gameTime.ElapsedGameTime.TotalSeconds;
             CheckMovement(hspeed, "H");
             CheckMovement(vspeed, "V");
-            vspeed += gravity;
+            vspeed = Math.Min(vspeed + gravity, 30f);
         }
 
         public void CheckMovement(float displacement, string direction)
@@ -123,6 +127,14 @@ namespace ace_game
                     if (!collided)
                         hitbox.X += (int)displacement;
                     break;
+            }
+        }
+        public virtual void takeDamage(int dmg, Entity source)
+        {
+            if (damageCooldown <= 0f)
+            {
+                health -= dmg;
+                damageCooldown = 1f;
             }
         }
     }

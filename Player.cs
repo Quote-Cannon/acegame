@@ -6,21 +6,24 @@ using System.Collections.Generic;
 
 namespace ace_game
 {
-    class Player : Entity
+    public class Player : Entity
     {
         int jumpDelay;
         bool crouched;
         public Camera camera;
-        public Player(Texture2D[] sprites, Point pos, float grav, Point screen) : base(sprites, pos, grav)
+        public Player(Texture2D[] sprites, Point pos, float grav, Point screen) : base(sprites, pos, grav, 100)
         {
             jumpDelay = 0;
             crouched = false;
             camera = new Camera(pos, screen);
         }
 
-        public override void Update(GameTime gameTime, KeyboardState kstate, GamePadState gstate)
+        public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime, kstate, gstate);
+            GamePadState gstate = GamePad.GetState(PlayerIndex.One);
+            KeyboardState kstate = Keyboard.GetState();
+
+            base.Update(gameTime);
             //if any of the jump buttons are pressed and a jump has been buffered <10 frames ago
             if ((kstate.IsKeyDown(Keys.W) || kstate.IsKeyDown(Keys.Up) || gstate.IsButtonDown(Buttons.A)) && jumpDelay < 10)
             {
@@ -38,13 +41,13 @@ namespace ace_game
             if (kstate.IsKeyUp(Keys.W) && kstate.IsKeyUp(Keys.Up) && gstate.IsButtonUp(Buttons.A))
                 jumpDelay = 0;
             if (kstate.IsKeyDown(Keys.A) || kstate.IsKeyDown(Keys.Left) || gstate.IsButtonDown(Buttons.DPadLeft) || gstate.ThumbSticks.Left.X < -0.5f)
-                hspeed -= 0.6f;
+                hspeed = Math.Max(hspeed - 0.6f, -hmax);
             else if (hspeed < 0f)
-                hspeed = Math.Clamp(hspeed + 0.9f, -10f, 0f);
+                hspeed = Math.Min(hspeed + 0.9f, 0f);
             if (kstate.IsKeyDown(Keys.D) || kstate.IsKeyDown(Keys.Right) || gstate.IsButtonDown(Buttons.DPadRight) || gstate.ThumbSticks.Left.X > 0.5f)
-                hspeed += 0.6f;
+                hspeed = Math.Min(hspeed + 0.6f, hmax);
             else if (hspeed > 0f)
-                hspeed = Math.Clamp(hspeed - 0.9f, 0f, 10f);
+                hspeed = Math.Max(hspeed - 0.9f, 0f);
             if (!crouched && (kstate.IsKeyDown(Keys.S) || kstate.IsKeyDown(Keys.Down) || gstate.IsButtonDown(Buttons.DPadDown) || gstate.ThumbSticks.Left.Y < -0.5f) && checkGrounded())
             {
                 crouched = true;
@@ -57,9 +60,8 @@ namespace ace_game
                 hmax *= 4f;
                 hitbox = new Rectangle(hitbox.X, hitbox.Y - hitbox.Height, spriteArr[0].Width, spriteArr[0].Height);
             }
-            //TODO: what the fuck is this
-            if (hitbox.X + camera.screen.X > camera.screen.Width / 3*2)
-            camera.screen.X = Math.Clamp(camera.screen.Width / 3*2 - hitbox.X, -(Main.mapBounds.X - camera.screen.Width), 0);
+            if (hitbox.X + camera.screen.X > camera.screen.Width / 3 * 2)
+                camera.screen.X = Math.Clamp(camera.screen.Width / 3 * 2 - hitbox.X, -(Main.mapBounds.X - camera.screen.Width), 0);
             if (camera.screen.X + hitbox.X < camera.screen.Width / 3)
                 camera.screen.X = Math.Clamp(camera.screen.Width / 3 - hitbox.X, -(Main.mapBounds.X - camera.screen.Width), 0);
             if (hitbox.Y + camera.screen.Y > camera.screen.Height / 3 * 2)
@@ -110,10 +112,26 @@ namespace ace_game
             return 0;
         }
 
+        public override void takeDamage(int dmg, Entity source)
+        {
+            if (damageCooldown <= 0f)
+            {
+                health -= dmg;
+                damageCooldown = 1f;
+                Point origin = new Point(source.hitbox.X + source.hitbox.Width, source.hitbox.Y + source.hitbox.Height);
+                Point center = new Point(hitbox.X + hitbox.Width, hitbox.Y + hitbox.Height);
+                hspeed = (center.X - origin.X) / 2;
+                vspeed = (center.Y - origin.Y) / 2;
+                if (health <= 0)
+                    Main.kill = true;
+            }
+        }
+
         public override void Draw()
         {
             drawIndex = findDrawIndex();
-            base.Draw();
+            if ((int)(damageCooldown * 100) % 2 == 0)
+                base.Draw();
         }
     }
 }

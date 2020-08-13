@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace ace_game
 {
-    class Camera
+    public class Camera
     {
         public Rectangle screen;
         public Matrix transMatrix;
@@ -24,9 +24,9 @@ namespace ace_game
             transMatrix = Matrix.CreateTranslation(screen.X, screen.Y, 0f);
         }
 
-        public void Draw(string fps, Point playerCoords)
+        public void Draw(string fps, Point playerCoords, int health)
         {
-            Main._spriteBatch.DrawString(Main.defaultFont, fps + $"\n player hitbox: {playerCoords.X}, {playerCoords.Y}\ncamera coords: {screen.X}, {screen.Y}", new Vector2(-screen.X, -screen.Y), Color.Black);
+            Main._spriteBatch.DrawString(Main.defaultFont, fps + $"\n player hitbox: {playerCoords.X}, {playerCoords.Y}\ncamera coords: {screen.X}, {screen.Y}\nHealth: {health}", new Vector2(-screen.X, -screen.Y), Color.Black);
         }
     }
 }
