@@ -13,6 +13,7 @@ namespace ace_game
         //TODO: use get/sets everywhere
         static public bool kill = false;
         Texture2D aceDash_spr, aceIdle_spr, aceJump_spr, aceSlide_spr, block_spr, bullet_spr, enemy_spr, sword_spr;
+        static public Texture2D empty;
         public static SpriteFont defaultFont;
         public static Player player;
         Dictionary<char, Texture2D> tileDict = new Dictionary<char, Texture2D>();
@@ -47,6 +48,7 @@ namespace ace_game
             enemy_spr = Content.Load<Texture2D>("enemy_placeholder");
             sword_spr = Content.Load<Texture2D>("sword_placeholder");
             defaultFont = Content.Load<SpriteFont>("defaultFont");
+            empty = Content.Load<Texture2D>("pixel");
         }
 
         protected override void Initialize()
