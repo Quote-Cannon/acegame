@@ -6,10 +6,11 @@ using System.Collections.Generic;
 
 namespace ace_game
 {
-    class Enemy : Entity
+    public class Enemy : Entity
     {
         Point spawnPoint;
         int[] damageValues;
+        public bool destroy = false;
         public Enemy(Texture2D[] sprites, Point spawn, float grav, int hp, int[] attacks) : base(sprites, spawn, grav, hp)
         {
             spawnPoint = spawn;
@@ -24,6 +25,17 @@ namespace ace_game
                 //contact damage
                 Main.player.takeDamage(damageValues[0], this);
             }
+            if (hspeed == 0f)
+            {
+                hspeed = Main.rnd.Next(-10, 10);
+            }
+        }
+
+        public override void takeDamage(int dmg, Entity source)
+        {
+            base.takeDamage(dmg, source);
+            if (health <= 0)
+                destroy = true;
         }
     }
 }

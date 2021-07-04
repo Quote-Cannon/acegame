@@ -11,15 +11,15 @@ namespace ace_game
     public class Main : Game
     {
         //TODO: use get/sets everywhere
-        static public bool kill = false;
-        Texture2D aceDash_spr, aceIdle_spr, aceJump_spr, aceSlide_spr, block_spr, bullet_spr, enemy_spr, sword_spr;
-        static public Texture2D empty;
+        public static bool kill = false;
+        public static Random rnd = new Random();
+        public static Texture2D aceDash_spr, aceIdle_spr, aceJump_spr, aceSlide_spr, block_spr, bullet_spr, enemy_spr, sword_spr;
+        public static Texture2D empty;
         public static SpriteFont defaultFont;
         public static Player player;
-        Dictionary<char, Texture2D> tileDict = new Dictionary<char, Texture2D>();
         public FrameCounter _frameCounter = new FrameCounter();
         public static Tile[,] currentMap;
-        List<Enemy> enemies = new List<Enemy>();
+        public static List<Enemy> enemies = new List<Enemy>();
 
         private GraphicsDeviceManager _graphics;
         public static SpriteBatch _spriteBatch;
@@ -76,6 +76,7 @@ namespace ace_game
             player.Update(gameTime);
             foreach (Enemy e in enemies)
                 e.Update(gameTime);
+            enemies.RemoveAll(e => e.destroy);
 
             base.Update(gameTime);
         }
@@ -98,7 +99,7 @@ namespace ace_game
             foreach (Enemy e in enemies)
                 e.Draw();
             player.Draw();
-            player.camera.Draw(fps, player.hitbox.Location, player.health);
+            player.camera.Draw(fps, player.hitbox.Location, player.health, player.mana);
             _spriteBatch.End();
 
 
